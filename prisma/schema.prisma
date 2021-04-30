@@ -11,23 +11,56 @@ generator client {
 }
 
 model User {
-   id Int @id @default(autoincrement())
-   username String  @unique
-   password  String
-   allowed_balance Int
+  id              Int     @id @default(autoincrement())
+  username        String  @unique
+  password        String
+  allowed_balance Int
+  Order           Order[]
 }
-model Product{
-  id Int @id @default(autoincrement())
-  name String
-  price Int
-  brand Brand
-  category Category
+
+model Product {
+  id          Int          @id @default(autoincrement())
+  name        String
+  price       Int
+  Brand       Brand        @relation(fields: [brand_id], references: [id])
+  Category    Category     @relation(fields: [category_id], references: [id])
+  brand_id    Int
+  category_id Int
+  OrderItems  OrderItems[]
 }
-model Brand{
-   id Int @id @default(autoincrement())
-   name String
+
+model Brand {
+  id      Int       @id @default(autoincrement())
+  name    String
+  Product Product[]
 }
-model Category{
-  id Int @id @default(autoincrement())
-  name String
+
+model Category {
+  id      Int       @id @default(autoincrement())
+  name    String
+  Product Product[]
+}
+
+enum OrderStatus {
+  PENDING
+  ACCEPTTED
+  DECLINED
+}
+
+model Order {
+  id         Int          @id @default(autoincrement())
+  User       User         @relation(fields: [user_id], references: [id])
+  user_id    Int
+  status     OrderStatus
+  cost       Int
+  OrderItems OrderItems[]
+}
+
+model OrderItems {
+  id         Int     @id @default(autoincrement())
+  Product    Product @relation(fields: [product_id], references: [id])
+  product_id Int
+  Order      Order   @relation(fields: [order_id], references: [id])
+  order_id   Int
+  quantity   Int
 }
