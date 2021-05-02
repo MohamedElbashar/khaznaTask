@@ -9,7 +9,7 @@ const router = Router();
 const db = new PrismaClient();
 
 const validate = Joi.object().keys({
-  name: Joi.string().min(4).required(),
+  name: Joi.string().min(3).required(),
 });
 
 router.get("/", auth, async (req, res) => {
