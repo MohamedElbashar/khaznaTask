@@ -9,7 +9,6 @@ const router = Router();
 const db = new PrismaClient();
 
 const validate = Joi.object().keys({
-  cost: Joi.number().min(0).required(),
   products: Joi.array()
     .items(
       Joi.object().keys({
@@ -23,6 +22,9 @@ router.get("/", auth, async (req, res) => {
   const order = await db.order.findMany({
     orderBy: {
       id: "asc",
+    },
+    include: {
+      OrderItems: true,
     },
   });
   res.send(order);
@@ -41,12 +43,12 @@ router.get("/:id", auth, async (req, res) => {
 });
 
 router.post(
-  "/:id",
+  "/",
   [auth, celebrate({ body: validate })],
   async (req: any, res: Response) => {
     const user = await db.user.findUnique({
       where: {
-        id: req.body.user_id,
+        id: req.user.id,
       },
     });
     if (!user) return res.status(400).send("Invalid User.");
@@ -59,7 +61,9 @@ router.post(
       },
     });
     products.forEach((product) => {
-      cost += product.price;
+      const quantity =
+        req.body.products.find((p: any) => p.id === product.id)?.quantity || 0;
+      cost += quantity * product.price;
     });
 
     const balance = user.allowed_balance;
@@ -119,7 +123,7 @@ router.post(
 );
 
 router.post(
-  "/:id/accept",
+  "/:id/decline",
   [auth, celebrate({ params: { id: Joi.number() } })],
   async (req: any, res: Response) => {
     const valid_id = parseInt(req.params.id);

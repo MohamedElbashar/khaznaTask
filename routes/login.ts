@@ -33,5 +33,4 @@ router.post(
     res.send(token);
   }
 );
-
 export default router;
