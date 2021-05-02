@@ -14,6 +14,6 @@ app.use("/api/login", login);
 app.use("/api/register", register);
 app.use("/api/product", product);
 app.use("/api/brand", brand);
-app.use("/api/brand", category);
+app.use("/api/category", category);
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listing on port ${port}...`));
