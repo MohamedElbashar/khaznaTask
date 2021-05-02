@@ -15,16 +15,18 @@ const validate = Joi.object().keys({
 router.get("/", auth, async (req, res) => {
   const brand = await db.brand.findMany({
     orderBy: {
-      name: "asc",
+      id: "asc",
     },
   });
+
   res.send(brand);
 });
 
 router.get("/:id", auth, async (req: any, res) => {
+  const valid_id = parseInt(req.params.id);
   const brand = await db.brand.findUnique({
     where: {
-      id: req.params.id,
+      id: valid_id,
     },
   });
   if (!brand)
@@ -50,9 +52,10 @@ router.put(
   "/:id",
   [(celebrate({ body: validate }), auth)],
   async (req: any, res: Response) => {
+    const valid_id = parseInt(req.params.id);
     const brand = await db.brand.update({
       where: {
-        id: req.params.id,
+        id: valid_id,
       },
       data: {
         name: req.body.name,
@@ -65,9 +68,10 @@ router.put(
 );
 
 router.delete("/:id", auth, async (req: any, res) => {
+  const valid_id = parseInt(req.params.id);
   const brand = await db.brand.delete({
     where: {
-      id: req.params.id,
+      id: valid_id,
     },
   });
   if (!brand)

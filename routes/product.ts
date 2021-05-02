@@ -10,8 +10,13 @@ const db = new PrismaClient();
 const validate = Joi.object().keys({
   name: Joi.string().min(4).required(),
   price: Joi.number().min(0).required(),
+  brand_id: Joi.number().required(),
+  category_id: Joi.number().required(),
 });
-
+const validateUpdate = Joi.object().keys({
+  name: Joi.string().min(4).required(),
+  price: Joi.number().min(0).required(),
+});
 router.get("/", auth, async (req: any, res: Response) => {
   const products = await db.product.findMany({
     where: {
@@ -34,6 +39,7 @@ router.post(
       },
     });
     if (!brand) return res.status(400).send("Invalid Brand.");
+
     const category = await db.category.findUnique({
       where: {
         id: req.body.category_id,
@@ -52,15 +58,20 @@ router.post(
           connect: { id: category.id },
         },
       },
+      include: {
+        Brand: true,
+        Category: true,
+      },
     });
     res.send(product);
   }
 );
 
 router.get("/:id", auth, async (req: any, res: Response) => {
+  const valid_id = parseInt(req.params.id);
   const product = await db.product.findUnique({
     where: {
-      id: req.body.id,
+      id: valid_id,
     },
   });
   if (!product)
@@ -71,11 +82,12 @@ router.get("/:id", auth, async (req: any, res: Response) => {
 
 router.put(
   "/:id",
-  [celebrate({ body: validate }), auth],
+  [celebrate({ body: validateUpdate }), auth],
   async (req: any, res: Response) => {
+    const valid_id = parseInt(req.params.id);
     const product = await db.product.update({
       where: {
-        id: req.params.id,
+        id: valid_id,
       },
       data: {
         name: req.body.name,
@@ -91,7 +103,10 @@ router.put(
 );
 
 router.delete("/:id", auth, async (req: any, res: Response) => {
-  const product = await db.product.delete({ where: { id: req.params.id } });
+  const valid_id = parseInt(req.params.id);
+  const product = await db.product.delete({
+    where: { id: valid_id },
+  });
   if (!product)
     return res.status(404).send("The product with the given ID was not found.");
 
@@ -99,14 +114,3 @@ router.delete("/:id", auth, async (req: any, res: Response) => {
 });
 
 export default router;
-// db.order.create({
-//     data:{
-//         cost:10,
-//         status:"PENDING",
-//         User:{
-//             connect:{'1345'},
-//         },OrderItems:{
-//             createMany:{data:{}}
-//         }
-//     }
-// })

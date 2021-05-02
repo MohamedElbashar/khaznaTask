@@ -15,16 +15,17 @@ const validate = Joi.object().keys({
 router.get("/", auth, async (req, res) => {
   const category = await db.category.findMany({
     orderBy: {
-      name: "asc",
+      id: "asc",
     },
   });
   res.send(category);
 });
 
 router.get("/:id", auth, async (req: any, res) => {
+  const valid_id = parseInt(req.params.id);
   const category = await db.category.findUnique({
     where: {
-      id: req.params.id,
+      id: valid_id,
     },
   });
   if (!category)
@@ -52,9 +53,10 @@ router.put(
   "/:id",
   [(celebrate({ body: validate }), auth)],
   async (req: any, res: Response) => {
+    const valid_id = parseInt(req.params.id);
     const category = await db.category.update({
       where: {
-        id: req.params.id,
+        id: valid_id,
       },
       data: {
         name: req.body.name,
@@ -69,9 +71,10 @@ router.put(
 );
 
 router.delete("/:id", auth, async (req: any, res) => {
+  const valid_id = parseInt(req.params.id);
   const category = await db.category.delete({
     where: {
-      id: req.params.id,
+      id: valid_id,
     },
   });
   if (!category)
