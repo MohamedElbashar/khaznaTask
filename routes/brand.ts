@@ -13,38 +13,36 @@ const validate = Joi.object().keys({
 });
 
 router.get("/", auth, async (req, res) => {
-  const category = await db.category.findMany({
+  const brand = await db.brand.findMany({
     orderBy: {
       name: "asc",
     },
   });
-  res.send(category);
+  res.send(brand);
 });
 
 router.get("/:id", auth, async (req: any, res) => {
-  const category = await db.category.findUnique({
+  const brand = await db.brand.findUnique({
     where: {
       id: req.params.id,
     },
   });
-  if (!category)
-    return res
-      .status(404)
-      .send("The category with the given ID was not found.");
+  if (!brand)
+    return res.status(404).send("The Brand with the given ID was not found.");
 
-  res.send(category);
+  res.send(brand);
 });
 
 router.post(
   "/",
   [auth, celebrate({ body: validate })],
   async (req: any, res: Response) => {
-    const category = await db.category.create({
+    const brand = await db.brand.create({
       data: {
         name: req.body.name,
       },
     });
-    res.send(category);
+    res.send(brand);
   }
 );
 
@@ -52,7 +50,7 @@ router.put(
   "/:id",
   [(celebrate({ body: validate }), auth)],
   async (req: any, res: Response) => {
-    const category = await db.category.update({
+    const brand = await db.brand.update({
       where: {
         id: req.params.id,
       },
@@ -60,25 +58,21 @@ router.put(
         name: req.body.name,
       },
     });
-    if (!category)
-      return res
-        .status(404)
-        .send("The category with the given ID was not found.");
-    res.send(category);
+    if (!brand)
+      return res.status(404).send("The Brand with the given ID was not found.");
+    res.send(brand);
   }
 );
 
 router.delete("/:id", auth, async (req: any, res) => {
-  const category = await db.category.delete({
+  const brand = await db.brand.delete({
     where: {
       id: req.params.id,
     },
   });
-  if (!category)
-    return res
-      .status(404)
-      .send("The category with the given ID was not found.");
+  if (!brand)
+    return res.status(404).send("The Brand with the given ID was not found.");
 
-  res.send(category);
+  res.send(brand);
 });
 export default router;

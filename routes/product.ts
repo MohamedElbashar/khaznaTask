@@ -57,7 +57,7 @@ router.post(
   }
 );
 
-router.get("/:id", async (req: any, res: Response) => {
+router.get("/:id", auth, async (req: any, res: Response) => {
   const product = await db.product.findUnique({
     where: {
       id: req.body.id,
@@ -90,19 +90,13 @@ router.put(
   }
 );
 
-router.put(
-  "/:id",
-  celebrate({ body: validate }),
-  async (req: any, res: Response) => {
-    const product = await db.product.delete({ where: { id: req.params.id } });
-    if (!product)
-      return res
-        .status(404)
-        .send("The product with the given ID was not found.");
+router.delete("/:id", auth, async (req: any, res: Response) => {
+  const product = await db.product.delete({ where: { id: req.params.id } });
+  if (!product)
+    return res.status(404).send("The product with the given ID was not found.");
 
-    res.send(product);
-  }
-);
+  res.send(product);
+});
 
 export default router;
 // db.order.create({
